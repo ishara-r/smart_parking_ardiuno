@@ -13,7 +13,7 @@ This is a ardiuno code for smart parking system. (4 parking slots)
  - Ardiuno Adafruit SSD1306
 
 
-##### Changes to do in code
+##### Changes to do in code before starting the app
 1. go to C:\Users\<User name>\Documents\Arduino\libraries\Adafruit_SSD1306
 2. open Adafruit_SSD1306.h file
 3. un-comment one of the screen size given in line 28 , 29, 30. (In this case un comment 28 line "#define SSD1306_128_64")
