@@ -1,5 +1,6 @@
-# smart_parking_ardiuno
+# smart parking ardiuno
 
-Needed ardiuno plugins
-*Ardiuno Adafruit GFX Library
-*Ardiuno Adafruit SSD1306
+
+##### Needed ardiuno plugins
+ - Ardiuno Adafruit GFX Library
+ - Ardiuno Adafruit SSD1306
