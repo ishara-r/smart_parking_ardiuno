@@ -47,6 +47,14 @@ int exitIrPin=13;
 
 //initialize parking spaces
 boolean parking[4]={false, false, false, false};
+boolean reservations[4]={false, false, false, false};
+
+boolean entranceServoOpen=false;
+boolean entrancePhotoTaken=false;
+
+String str = ""; 
+
+char inputBuffer[10];   
 
 // Create a servo objects
 Servo Servo1; 
@@ -98,10 +106,43 @@ void setup() {
   }
 
 }
+
 void loop(){ 
+
+ while(Serial.available() > 0 ){
+    str = Serial.readString();
+
+    String name=str.substring(0, str.indexOf(" "));
+    if(name.equalsIgnoreCase("parking_reserved")){
+      String reservedSlot=str.substring(str.indexOf(" "), str.length());  
+      Serial.println(reservedSlot.toInt()-1);
+      reservations[reservedSlot.toInt()-1]=true;
+    }
+    if(name.equalsIgnoreCase("reservation_came")){
+      String reservedSlotNum=str.substring(str.indexOf(" "), str.length()); 
+     
+      Serial.println(reservedSlotNum);
+      Serial.println("reservation_came2");
+//      Serial.println(msg);
+
+      if(reservedSlotNum.equalsIgnoreCase("1")){
+        testdrawchar("Slot 1");  
+      }else if(reservedSlotNum.equalsIgnoreCase("2")){
+        testdrawchar("Slot 2");  
+      }else if(reservedSlotNum.equalsIgnoreCase("3")){
+        testdrawchar("Slot 3");  
+      }else {
+        testdrawchar("Slot 4");  
+      }
+      delay(2000); 
+      
+    }
+  }
+
+
   for ( int i = 0; i < 4; ++i ) {
         
-        if(parking[i]==false){
+        if(parking[i]==false && reservations[i]==false){
           if(i==0){
             testdrawchar("Slot 1");
             break;
@@ -128,26 +169,40 @@ void loop(){
   if(digitalRead(entranceIr)==0){
     if(getAvailableSlotCount()>0){
       Servo1.write(0); 
+      entranceServoOpen=true;
     }
-     
+//     Serial.println("vehicle-in");
      for ( int i = 0; i < 4; ++i ) {
         if(parking[i]==false){
           if(i==0){
+            if(entrancePhotoTaken!=true){
+              Serial.println("vehicle-in 1");
+              entrancePhotoTaken=true;  
+            }
             digitalWrite(parking1LEDPin, state);
             digitalWrite(rightRoadLedPin, state);
             delay(2000); 
             break;
           }else if(i==1){
+             if(entranceServoOpen==true){
+              Serial.println("vehicle-in 2");
+             }
              digitalWrite(parking2LEDPin, state);
              digitalWrite(rightRoadLedPin, state);
              delay(2000);
              break;
           }else if(i==2){
+            if(entranceServoOpen==true){
+              Serial.println("vehicle-in 1");
+            }
             digitalWrite(parking3LEDPin, state);
             digitalWrite(leftRoadLedPin, state);
             delay(2000);
             break;
           }else if(i==3){
+            if(entranceServoOpen==true){
+              Serial.println("vehicle-in 1");
+            }
             digitalWrite(parking4LEDPin, state);
             digitalWrite(leftRoadLedPin, state);
             delay(2000);
@@ -157,6 +212,7 @@ void loop(){
       }
   }else{
       Servo1.write(90); 
+      entrancePhotoTaken = false;
   } 
 
   
@@ -167,7 +223,11 @@ void loop(){
     }
     parking[0]=true;
   }else{
-    parking[0]=false;    
+    if(parking[0]==true){
+      Serial.println("vehicle-out 1");
+      reservations[0]=false;
+    }
+    parking[0]=false;  
   }
   
   if(digitalRead(parking2IRPin)==0){
@@ -177,6 +237,10 @@ void loop(){
     }
     parking[1]=true;
   }else{
+    if(parking[1]==true){
+      Serial.println("vehicle-out 2");
+      reservations[1]=false;
+    }
     parking[1]=false;    
   }
 
@@ -187,6 +251,10 @@ void loop(){
     }
     parking[2]=true;
   }else{
+    if(parking[2]==true){
+      Serial.println("vehicle-out 3");
+      reservations[2]=false;
+    }
     parking[2]=false;    
   }
 
@@ -197,6 +265,10 @@ void loop(){
     }
     parking[3]=true;
   }else{
+    if(parking[3]==true){
+      Serial.println("vehicle-out 4");
+      reservations[3]=false;
+    }
     parking[3]=false;    
   }
 
@@ -212,7 +284,7 @@ int getAvailableSlotCount(){
   int availableSlotCount=0;
 
   for ( int i = 0; i < 4; ++i ) {
-    if(parking[i]==false){
+    if(parking[i]==false && reservations[i]==false){
         availableSlotCount=availableSlotCount+1;
     }  
   }
